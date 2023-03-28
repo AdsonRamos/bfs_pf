@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>BFS Pathfinder</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='stylesheet' type='text/css' media='screen' href='styles.css'>
+  <script src='index.js' defer></script>
+</head>
+
+<body>
+  colocar um display grid antes de gravar
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="row instruction">
+        <p>Instructions</p>
+        <ul>
+          <li>Left click for obstacle</li>
+          <li>Midle click for origin</li>
+          <li>Right click for destiny</li>
+        </ul>
+      </div>
+      <div class="row colors">
+        <p>Colors</p>
+        <ul>
+          <li>
+            <input type="color" value="#f6bd60" id="colorGrid">
+            <h4>Grid</h4>
+          </li>
+          <li>
+            <input type="color" value="#f28482" id="colorObstacle">
+            <h4>Obstacle</h4>
+          </li>
+          <li>
+            <input type="color" value="#7f5539" id="colorOrigin">
+            <h4>Origin</h4>
+          </li>
+          <li>
+            <input type="color" value="#4361ee" id="colorDestiny">
+            <h4>Destiny</h4>
+          </li>
+          <li>
+            <input type="color" value="#3bceac" id="colorPath">
+            <h4>Path</h4>
+          </li>
+        </ul>
+      </div>
+      <div class="row velocity">
+        <p>Velocity</p>
+        <input type="range" id="slider" step="1" max="100" value="100">
+      </div>
+      <div class="row buttons">
+        <button class="clear" onclick="clearBoard()">Clear</button>
+        <button class="solve" onclick="solve()">Solve</button>
+      </div>
+    </div>
+    <div id="main" class="main">
+      <div class="grid"></div>
+    </div>
+  </div>
+</body>
+
+</html>
