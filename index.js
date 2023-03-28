@@ -71,7 +71,9 @@ const MARGIN_SQUARE = 1
 
 const PADDING = 10
 
-const evaluateWidth = () => {
+grid.style["grid-template-columns"] = "auto ".repeat(GRID_WIDTH)
+
+/* const evaluateWidth = () => {
   return GRID_WIDTH * SIZE_SQUARE + 4 * 1 * (GRID_WIDTH - 1) + 3 * PADDING
 }
 
@@ -80,7 +82,7 @@ const evaluateHeight = () => {
 }
 
 main.style.width = `${evaluateWidth()}px`
-main.style.height = `${evaluateHeight()}px`
+main.style.height = `${evaluateHeight()}px` */
 
 
 const matrix = [[]]
