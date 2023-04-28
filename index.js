@@ -16,52 +16,10 @@ let COLOR_DESTINY = '#4361ee'
 let COLOR_PATH = '#3bceac'
 
 const inputColorGrid = document.getElementById('colorGrid')
-inputColorGrid.addEventListener('input', el => {
-  COLOR_GRID = el.target.value
-
-  // update grid
-  squares.forEach((square, index) => {
-    if (index !== startPosition && index !== destinyPosition
-      && (matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT] ?
-        !matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT].obstacle : true)) {
-      square.style.background = COLOR_GRID
-    }
-  })
-})
-
 const inputColorObstacle = document.getElementById('colorObstacle')
-inputColorObstacle.addEventListener('input', el => {
-  COLOR_OBSTACLE = el.target.value
-
-  // update obstacles colors
-  squares.forEach((square, index) => {
-    if (matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT]
-      && matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT].obstacle) {
-      square.style.background = COLOR_OBSTACLE
-    }
-  })
-})
-
-const inputColorOrigin = document.getElementById('colorOrigin')
-inputColorOrigin.addEventListener('input', el => {
-  COLOR_ORIGIN = el.target.value
-  if (squareStart) {
-    squareStart.style.background = COLOR_ORIGIN
-  }
-})
-
 const inputColorDestiny = document.getElementById('colorDestiny')
-inputColorDestiny.addEventListener('input', el => {
-  COLOR_DESTINY = el.target.value
-  if (squareDestiny) {
-    squareDestiny.style.background = COLOR_DESTINY
-  }
-})
-
+const inputColorOrigin = document.getElementById('colorOrigin')
 const inputColorPath = document.getElementById('colorPath')
-inputColorPath.addEventListener('input', el => {
-  COLOR_PATH = el.target.value
-})
 
 const GRID_WIDTH = 24
 const GRID_HEIGHT = 24
@@ -73,19 +31,60 @@ const PADDING = 10
 
 grid.style["grid-template-columns"] = "auto ".repeat(GRID_WIDTH)
 
-/* const evaluateWidth = () => {
-  return GRID_WIDTH * SIZE_SQUARE + 4 * 1 * (GRID_WIDTH - 1) + 3 * PADDING
-}
-
-const evaluateHeight = () => {
-  return GRID_HEIGHT * SIZE_SQUARE + 4 * 1 * (GRID_HEIGHT - 1) + 3 * PADDING
-}
-
-main.style.width = `${evaluateWidth()}px`
-main.style.height = `${evaluateHeight()}px` */
-
-
 const matrix = [[]]
+
+let startPosition
+let destinyPosition
+
+let squareStart
+let squareDestiny
+
+const squares = document.querySelectorAll('.square')
+
+let velocity = 100
+
+inputColorGrid.addEventListener('input', el => {
+  COLOR_GRID = el.target.value
+  
+  // update grid
+  squares.forEach((square, index) => {
+    if (index !== startPosition && index !== destinyPosition
+      && (matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT] ?
+      !matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT].obstacle : true)) {
+        square.style.background = COLOR_GRID
+      }
+    })
+  })
+  
+  inputColorObstacle.addEventListener('input', el => {
+    COLOR_OBSTACLE = el.target.value
+
+    // update obstacles colors
+    squares.forEach((square, index) => {
+    if (matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT]
+    && matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT].obstacle) {
+      square.style.background = COLOR_OBSTACLE
+    }
+  })
+})
+
+inputColorOrigin.addEventListener('input', el => {
+  COLOR_ORIGIN = el.target.value
+  if (squareStart) {
+    squareStart.style.background = COLOR_ORIGIN
+  }
+})
+
+inputColorDestiny.addEventListener('input', el => {
+  COLOR_DESTINY = el.target.value
+  if (squareDestiny) {
+    squareDestiny.style.background = COLOR_DESTINY
+  }
+})
+
+inputColorPath.addEventListener('input', el => {
+  COLOR_PATH = el.target.value
+})
 
 const startMatrix = () => {
 
@@ -98,13 +97,6 @@ const startMatrix = () => {
 }
 
 startMatrix()
-
-let startPosition
-let destinyPosition
-
-let squareStart
-let squareDestiny
-
 
 for (let i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++) {
   const square = document.createElement('div')
@@ -151,8 +143,6 @@ for (let i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++) {
   grid.appendChild(square)
 }
 
-const squares = document.querySelectorAll('.square')
-
 class Vertex {
   constructor({ label, visited, parent }) {
     this.label = label
@@ -190,9 +180,8 @@ const sleep = async (ms) => {
 
 let g = new Graph({ vertices })
 
-let velocity = 100
-
 const slider = document.getElementById('slider')
+
 slider.addEventListener('input', (el) => {
   velocity = el.target.value
 })
@@ -264,23 +253,22 @@ const solve = async () => {
   while (queue.length > 0) {
     current = queue.shift()
     for (let i = 0; i < g.adjacencyList[current.label].length; i++) {
-      // melhorar o nome da variavel currentLabel
-      let currentLabel = g.adjacencyList[current.label][i].label
+      let currentVertex = g.adjacencyList[current.label][i].label
       await sleep(101 - velocity)
-      if (currentLabel != startIndex && !vertices[currentLabel].destiny) {
-        squares[currentLabel].style.background = 'pink'
-        squares[currentLabel].classList.add('onSearch')
+      if (currentVertex != startIndex && !vertices[currentVertex].destiny) {
+        squares[currentVertex].style.background = 'pink'
+        squares[currentVertex].classList.add('onSearch')
       }
-      if (!vertices[currentLabel].visited) {
-        vertices[currentLabel].visited = true
-        vertices[currentLabel].cost = 1 + current.cost
-        vertices[currentLabel].parent = current
+      if (!vertices[currentVertex].visited) {
+        vertices[currentVertex].visited = true
+        vertices[currentVertex].cost = 1 + current.cost
+        vertices[currentVertex].parent = current
 
-        if (vertices[currentLabel].cost < minCost && vertices[currentLabel].destiny) {
-          minCost = vertices[currentLabel].cost
-          destiny = vertices[currentLabel]
+        if (vertices[currentVertex].cost < minCost && vertices[currentVertex].destiny) {
+          minCost = vertices[currentVertex].cost
+          destiny = vertices[currentVertex]
         }
-        queue.push(vertices[currentLabel])
+        queue.push(vertices[currentVertex])
       }
     }
   }
