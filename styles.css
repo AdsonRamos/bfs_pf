@@ -1,9 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", "sans-serif";
+  font-family: 'Courier New', Courier, monospace;
 }
 
 body {
@@ -11,11 +10,12 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #84a59d;
+  background: #84A59D;
 }
 
 .container {
   display: flex;
+  justify-content: center;
   width: 100%;
   gap: 10px;
   padding: 10px;
@@ -23,26 +23,25 @@ body {
 }
 
 .sidebar {
-  background: #fff;
+  background: #FFF;
   border-radius: 7px;
-  width: 250px;
-  height: 602px;
+  width: 200px;
 }
 
 .instruction,
 .colors,
-.velocity {
+.speed {
   padding: 10px;
   margin: 10px;
   background: #264653;
   border-radius: 2px;
-  color: #fff;
+  color: #FFF;
 }
 
 .instruction p,
 .colors p,
-.velocity p {
-  background: #8ecae6;
+.speed p {
+  background: #8ECAE6;
   padding: 5px;
   border-radius: 2px;
   margin-bottom: 10px;
@@ -69,7 +68,7 @@ body {
 }
 
 .main {
-  background: #fff;
+  background: #FFF;
   border-radius: 7px;
   display: flex;
   justify-content: center;
@@ -93,28 +92,27 @@ body {
   margin: 2px;
   padding: 2px;
   cursor: pointer;
-  background: #135d9e;
+  background: #135D9E;
   color: #FFF;
-  border: none;
   border-radius: 2px;
 }
 
 .clear:hover, .solve:hover {
-  color: #fff;
-  background: #135d9e8c;
+  color: #FFF;
+  background: #134D9E8C;
 }
 
 .grid .square {
   width: 20px;
   height: 20px;
-  background: #f6bd60;
+  background: #F6BD60;
   margin: 2px;
   border-radius: 2px;
   transition: 0.2s;
 }
 
 .grid .square:hover {
-  background: #f7ede2;
+  background: #F7EDE2;
   transform: scale(1.1);
 }
 

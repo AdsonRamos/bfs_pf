@@ -6,14 +6,14 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 const MOUSE_BUTTONS = {
   LEFT: 0,
   CENTER: 1,
-  RIGHT: 2,
+  RIGHT: 2
 }
 
-let COLOR_GRID = '#f6bd60'
-let COLOR_OBSTACLE = '#f28482'
-let COLOR_ORIGIN = '#7f5539'
-let COLOR_DESTINY = '#4361ee'
-let COLOR_PATH = '#3bceac'
+let COLOR_GRID = '#F6BD60'
+let COLOR_OBSTACLE = '#F28482'
+let COLOR_ORIGIN = '#7F5539'
+let COLOR_DESTINY = '#4361EE'
+let COLOR_PATH = '#3BCEAC'
 
 const inputColorGrid = document.getElementById('colorGrid')
 const inputColorObstacle = document.getElementById('colorObstacle')
@@ -21,17 +21,12 @@ const inputColorDestiny = document.getElementById('colorDestiny')
 const inputColorOrigin = document.getElementById('colorOrigin')
 const inputColorPath = document.getElementById('colorPath')
 
-const GRID_WIDTH = 24
+const GRID_WIDTH = 18
 const GRID_HEIGHT = 24
-
-const SIZE_SQUARE = 20
-const MARGIN_SQUARE = 1
-
-const PADDING = 10
 
 grid.style["grid-template-columns"] = "auto ".repeat(GRID_WIDTH)
 
-const matrix = [[]]
+const gridMatrix = [[]]
 
 let startPosition
 let destinyPosition
@@ -39,35 +34,108 @@ let destinyPosition
 let squareStart
 let squareDestiny
 
+const sleep = async (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+let speed = 100
+
+const slider = document.getElementById('slider')
+
+slider.addEventListener('input', el => {
+  speed = el.target.value
+})
+
+const startGridMatrix = () => {
+  for (let i = 0; i < GRID_HEIGHT; i++) {
+    gridMatrix[i] = []
+    for (let j = 0; j < GRID_WIDTH; j++) {
+      gridMatrix[i][j] = {}
+    }
+  }
+}
+
+startGridMatrix()
+
+for (let i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++) {
+  const square = document.createElement('div')
+  square.className = 'square'
+
+  square.addEventListener('mousedown', event => {
+    switch (event.button) {
+      case MOUSE_BUTTONS.LEFT:
+        // obstacle
+        gridMatrix[Math.floor(i / GRID_WIDTH)][i % GRID_WIDTH] = { obstacle: true }
+        square.style.background = COLOR_OBSTACLE
+        break;
+
+      case MOUSE_BUTTONS.CENTER:
+        // origin
+
+        // if the origin square has already chosen, we update it
+        if (squareStart) {
+          squareStart.style.background = COLOR_GRID
+          gridMatrix[Math.floor(startPosition / GRID_WIDTH)][startPosition % GRID_WIDTH] = null
+        } else {
+          gridMatrix[Math.floor(i / GRID_WIDTH)][i % GRID_WIDTH] = { start: true }
+          startPosition = i
+        }
+
+        square.style.background = COLOR_ORIGIN
+        squareStart = square
+        break;
+
+      case MOUSE_BUTTONS.RIGHT:
+
+        // if the destiny square has already chosen, we update it
+
+        if (squareDestiny) {
+          squareDestiny.style.background = COLOR_GRID
+          gridMatrix[Math.floor(destinyPosition / GRID_WIDTH)][destinyPosition % GRID_WIDTH] = null
+        } else {
+          gridMatrix[Math.floor(i / GRID_WIDTH)][i % GRID_WIDTH] = { destiny: true }
+          destinyPosition = i
+        }
+
+        square.style.background = COLOR_DESTINY
+        squareDestiny = square
+        break;
+
+      default:
+        break;
+    }
+  })
+  grid.appendChild(square)
+}
+
 const squares = document.querySelectorAll('.square')
 
-let velocity = 100
+// update the color of the squares
 
+// grid
 inputColorGrid.addEventListener('input', el => {
   COLOR_GRID = el.target.value
-  
+
   // update grid
   squares.forEach((square, index) => {
-    if (index !== startPosition && index !== destinyPosition
-      && (matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT] ?
-      !matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT].obstacle : true)) {
-        square.style.background = COLOR_GRID
-      }
-    })
+    if (index !== startPosition && index !== destinyPosition && !gridMatrix[Math.floor(index / GRID_WIDTH)][index % GRID_WIDTH].obstacle) {
+      square.style.background = COLOR_GRID
+    }
   })
-  
-  inputColorObstacle.addEventListener('input', el => {
-    COLOR_OBSTACLE = el.target.value
+})
 
-    // update obstacles colors
-    squares.forEach((square, index) => {
-    if (matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT]
-    && matrix[Math.floor(index / GRID_WIDTH)][index % GRID_HEIGHT].obstacle) {
+// obstacle
+inputColorObstacle.addEventListener('input', el => {
+  COLOR_OBSTACLE = el.target.value
+
+  squares.forEach((square, index) => {
+    if (gridMatrix[Math.floor(index / GRID_WIDTH)][index % GRID_WIDTH].obstacle) {
       square.style.background = COLOR_OBSTACLE
     }
   })
 })
 
+// origin
 inputColorOrigin.addEventListener('input', el => {
   COLOR_ORIGIN = el.target.value
   if (squareStart) {
@@ -75,6 +143,7 @@ inputColorOrigin.addEventListener('input', el => {
   }
 })
 
+// destiny
 inputColorDestiny.addEventListener('input', el => {
   COLOR_DESTINY = el.target.value
   if (squareDestiny) {
@@ -82,66 +151,12 @@ inputColorDestiny.addEventListener('input', el => {
   }
 })
 
+// path
 inputColorPath.addEventListener('input', el => {
   COLOR_PATH = el.target.value
 })
 
-const startMatrix = () => {
-
-  for (let i = 0; i < GRID_WIDTH; i++) {
-    matrix[i] = []
-    for (let j = 0; j < GRID_HEIGHT; j++) {
-      matrix[i][j] = null
-    }
-  }
-}
-
-startMatrix()
-
-for (let i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++) {
-  const square = document.createElement('div')
-  square.className = 'square'
-
-  square.addEventListener('mousedown', (event) => {
-    switch (event.button) {
-      case MOUSE_BUTTONS.LEFT:
-
-        matrix[Math.floor(i / GRID_WIDTH)][i % GRID_HEIGHT] = { obstacle: true }
-        square.style.background = COLOR_OBSTACLE
-        break;
-      case MOUSE_BUTTONS.CENTER:
-
-        if (squareStart) {
-          squareStart.style.background = COLOR_GRID
-          matrix[Math.floor(startPosition / GRID_WIDTH)][startPosition % GRID_HEIGHT] = null
-        } else {
-          matrix[Math.floor(i / GRID_WIDTH)][i % GRID_HEIGHT] = { start: true }
-          startPosition = i
-        }
-
-        square.style.background = COLOR_ORIGIN
-        squareStart = square
-        break;
-      case MOUSE_BUTTONS.RIGHT:
-
-        if (squareDestiny) {
-          squareDestiny.style.background = COLOR_GRID
-          matrix[Math.floor(destinyPosition / GRID_WIDTH)][destinyPosition % GRID_HEIGHT] = null
-        } else {
-          matrix[Math.floor(i / GRID_WIDTH)][i % GRID_HEIGHT] = { destiny: true }
-          destinyPosition = i
-        }
-
-        square.style.background = COLOR_DESTINY
-        squareDestiny = square
-        break;
-      default:
-
-        break;
-    }
-  })
-  grid.appendChild(square)
-}
+// Graph and Vertex class
 
 class Vertex {
   constructor({ label, visited, parent }) {
@@ -155,14 +170,14 @@ class Vertex {
 
 class Graph {
   constructor({ vertices }) {
-
     this.vertices = vertices
     this.adjacencyList = [[]]
+
 
     vertices.forEach((vertex, index) => {
       this.adjacencyList[index] = []
       this.adjacencyList[index].push(vertex)
-    });
+    })
   }
 
   addEdge = (u, v) => {
@@ -174,35 +189,9 @@ let vertices = Array.from({ length: GRID_HEIGHT * GRID_WIDTH }, (_, i) => {
   return new Vertex({ label: i, visited: false, parent: null })
 })
 
-const sleep = async (ms) => {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 let g = new Graph({ vertices })
 
-const slider = document.getElementById('slider')
-
-slider.addEventListener('input', (el) => {
-  velocity = el.target.value
-})
-
-const clearBoard = () => {
-  startMatrix()
-
-  vertices = Array.from({ length: GRID_HEIGHT * GRID_WIDTH }, (_, i) => {
-    return new Vertex({ label: i, visited: false, parent: null })
-  })
-
-  g = new Graph({ vertices })
-
-  squares.forEach(square => {
-    square.style.background = COLOR_GRID
-    square.classList.remove('onSearch')
-  })
-
-  squareDestiny = undefined
-  squareStart = undefined
-}
+// solve algorithm
 
 const solve = async () => {
   const queue = []
@@ -210,31 +199,25 @@ const solve = async () => {
   let startIndex
   let destinyIndex
 
-  for (let i = 0; i < GRID_WIDTH; i++) {
-    for (let j = 0; j < GRID_HEIGHT; j++) {
+  // check for positions and add the edges
 
-      matrix[i][j] = matrix[i][j] || {}
+  for (let i = 0; i < GRID_HEIGHT; i++) {
+    for (let j = 0; j < GRID_WIDTH; j++) {
 
-      if (matrix[i][j].start) {
-        startIndex = GRID_HEIGHT * i + j
-      } else if (matrix[i][j].destiny) {
-        destinyIndex = GRID_HEIGHT * i + j
+      if (gridMatrix[i][j].start) {
+        startIndex = GRID_WIDTH * i + j
+      } else if (gridMatrix[i][j].destiny) {
+        destinyIndex = GRID_WIDTH * i + j
       }
 
-      if (j != GRID_HEIGHT - 1) {
-        matrix[i][j + 1] = matrix[i][j + 1] || {}
+      // add the edges in the graph
+      if (j < GRID_WIDTH - 1 && (!gridMatrix[i][j].obstacle && (!gridMatrix[i][j + 1].obstacle))) {
+        g.addEdge(GRID_WIDTH * i + j, GRID_WIDTH * i + j + 1)
+        g.addEdge(GRID_WIDTH * i + j + 1, GRID_WIDTH * i + j)
       }
-      if (i != GRID_WIDTH - 1) {
-        matrix[i + 1][j] = matrix[i + 1][j] || {}
-      }
-
-      if (j != GRID_HEIGHT - 1 && (!matrix[i][j].obstacle && !matrix[i][j + 1].obstacle)) {
-        g.addEdge(GRID_HEIGHT * i + j, GRID_HEIGHT * i + j + 1);
-        g.addEdge(GRID_HEIGHT * i + j + 1, GRID_HEIGHT * i + j);
-      }
-      if (i != GRID_WIDTH - 1 && (!matrix[i][j].obstacle && !matrix[i + 1][j].obstacle)) {
-        g.addEdge(GRID_HEIGHT * i + j, GRID_HEIGHT * (i + 1) + j);
-        g.addEdge(GRID_HEIGHT * (i + 1) + j, GRID_HEIGHT * i + j);
+      if (i < GRID_HEIGHT - 1 && (!gridMatrix[i][j].obstacle && !gridMatrix[i + 1][j].obstacle)) {
+        g.addEdge(GRID_WIDTH * i + j, GRID_WIDTH * (i + 1) + j)
+        g.addEdge(GRID_WIDTH * (i + 1) + j, GRID_WIDTH * i + j)
       }
     }
   }
@@ -249,12 +232,12 @@ const solve = async () => {
 
   let destiny
 
-  // executing the bfs algorithm
+  //executing the bfs algorithm
   while (queue.length > 0) {
     current = queue.shift()
     for (let i = 0; i < g.adjacencyList[current.label].length; i++) {
       let currentVertex = g.adjacencyList[current.label][i].label
-      await sleep(101 - velocity)
+      await sleep(101 - speed)
       if (currentVertex != startIndex && !vertices[currentVertex].destiny) {
         squares[currentVertex].style.background = 'pink'
         squares[currentVertex].classList.add('onSearch')
@@ -273,7 +256,7 @@ const solve = async () => {
     }
   }
 
-  // drawing the path
+  //drawing the path
   let parent = destiny
   while (parent !== null) {
     if (!parent.destiny && parent.parent) {
@@ -281,5 +264,22 @@ const solve = async () => {
     }
     parent = parent.parent
   }
+}
 
+const clearBoard = () => {
+  startGridMatrix()
+
+  vertices = Array.from({ length: GRID_HEIGHT * GRID_WIDTH }, (_, i) => {
+    return new Vertex({ label: i, visited: false, parent: null })
+  })
+
+  g = new Graph({ vertices })
+
+  squares.forEach(square => {
+    square.style.background = COLOR_GRID
+    square.classList.remove('onSearch')
+  })
+
+  squareDestiny = undefined
+  squareStart = undefined
 }
